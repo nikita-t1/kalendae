@@ -51,6 +51,7 @@ dependencies:
 
   # A Flutter plugin for storing data on device using key-value pairs.
   localstorage: ^5.0.0
+  package_info_plus: ^8.0.0
 
 dev_dependencies:
   flutter_test:
