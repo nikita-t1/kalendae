@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class VisibleCalendarMonthProvider extends ChangeNotifier {
+class CalendarWidgetStateProvider extends ChangeNotifier {
   DateTime visibleMonth = DateTime.now();
+  DateTime selectedDay = DateTime.now();
 
-  void selectMonth(DateTime month) {
-    if (visibleMonth.toIso8601String() == month.toIso8601String()) return;
+  void selectDay(DateTime day) {
+    selectedDay = day;
+    notifyListeners();
+  }
+
+  void setVisibleMonth(DateTime month) {
     visibleMonth = month;
     notifyListeners();
   }
 }
 
-final visibleCalendarMonthProvider = ChangeNotifierProvider<VisibleCalendarMonthProvider>((ref) {
-  return VisibleCalendarMonthProvider();
+final calendarWidgetStateProviderProvider = ChangeNotifierProvider<CalendarWidgetStateProvider>((ref) {
+  return CalendarWidgetStateProvider();
 });

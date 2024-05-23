@@ -21,25 +21,11 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var calMonth = ref.watch(visibleCalendarMonthProvider);
+    var calendarState = ref.watch(calendarWidgetStateProviderProvider);
     var calendarSettings = ref.watch(calendarSettingsProvider);
     var calendars = ref.watch(selectedCalendarProvider);
 
     DeviceCalendarPlugin deviceCalendar = DeviceCalendarPlugin.private();
-    var events = deviceCalendar.retrieveEvents(
-        "6",
-        RetrieveEventsParams(
-          startDate: DateTime.now(),
-          endDate: DateTime.now().add(const Duration(days: 365)),
-        ));
-    deviceCalendar
-        .retrieveEvents(
-            "6",
-            RetrieveEventsParams(
-              startDate: DateTime.now(),
-              endDate: DateTime.now().add(const Duration(days: 365)),
-            ))
-        .then((value) => print(value));
     return Scaffold(
         body: Container(
       child: Column(
@@ -49,21 +35,28 @@ class HomePage extends ConsumerWidget {
             startingDayOfWeek:
                 _weekdayToStartingDayOfWeek(calendarSettings.firstDayOfWeek),
             sixWeekMonthsEnforced: true,
-            onPageChanged: (focusedDay) => calMonth.selectMonth(focusedDay),
+            onPageChanged: (focusedDay) => calendarState.setVisibleMonth(focusedDay),
             firstDay: DateTime.utc(1970),
             lastDay: DateTime.utc(2038, 1, 18),
-            focusedDay: calMonth.visibleMonth,
-            // onDaySelected: (selectedDay, focusedDay) => calMonth.selectMonth(selectedDay),
+            focusedDay: calendarState.visibleMonth,
+            onDaySelected: (selectedDay, focusedDay) => calendarState.selectDay(selectedDay),
+            selectedDayPredicate: (day) => isSameDay(calendarState.selectedDay, day),
             weekNumbersVisible: calendarSettings.showCalendarWeeks,
             calendarStyle: CalendarStyle(
+              todayTextStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
               isTodayHighlighted: true,
+              todayDecoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).colorScheme.secondary),
+                shape: BoxShape.circle,
+              ),
               selectedDecoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 shape: BoxShape.circle,
               ),
-              todayDecoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary,
-                shape: BoxShape.circle,
+              selectedTextStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
           ),

@@ -7,7 +7,8 @@ import 'package:kalendae/pages/settings_page.dart';
 import 'package:kalendae/providers/settings_provider.dart';
 import 'package:kalendae/providers/visible_calendar_month_provider.dart';
 
-void main() {
+
+Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(
@@ -58,11 +59,31 @@ class DefaultLayout extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var calMonth = ref.watch(visibleCalendarMonthProvider);
+    var calendarState = ref.watch(calendarWidgetStateProviderProvider);
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const CalendarSelectionPage()),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
       appBar: AppBar(
-        title: Text(DateFormat('MMMM yyyy').format(calMonth.visibleMonth)),
+        title: Text(DateFormat('MMMM yyyy').format(calendarState.visibleMonth)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.today_outlined),
+            tooltip: 'Today',
+            onPressed: () {
+              calendarState.selectDay(DateTime.now());
+              calendarState.setVisibleMonth(DateTime.now());
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -82,6 +103,17 @@ class DefaultLayout extends ConsumerWidget {
             ),
             Divider(),
             ListTile(
+              title: const Text('Calendars'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const CalendarSelectionPage()),
+                );
+              },
+            ),
+            ListTile(
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pop(context);
@@ -95,7 +127,7 @@ class DefaultLayout extends ConsumerWidget {
           ],
         ),
       ),
-      body: const HomePage(),
+      body: HomePage(),
     );
   }
 }
