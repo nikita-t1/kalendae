@@ -4,8 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:kalendae/pages/calendars_selection_page.dart';
 import 'package:kalendae/pages/home_page.dart';
 import 'package:kalendae/pages/settings_page.dart';
+import 'package:kalendae/providers/selected_calendar_provider.dart';
 import 'package:kalendae/providers/settings_provider.dart';
-import 'package:kalendae/providers/visible_calendar_month_provider.dart';
+import 'package:kalendae/providers/calendar_widget_state_provider.dart';
 
 
 Future main() async {
@@ -59,7 +60,8 @@ class DefaultLayout extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var calendarState = ref.watch(calendarWidgetStateProviderProvider);
+    var visibleMonthState = ref.watch(calendarWidgetVisibleMonthStateProvider);
+    var selectedDayState = ref.watch(calendarWidgetSelectedDayStateProvider);
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -73,14 +75,14 @@ class DefaultLayout extends ConsumerWidget {
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(
-        title: Text(DateFormat('MMMM yyyy').format(calendarState.visibleMonth)),
+        title: Text(DateFormat('MMMM yyyy').format(visibleMonthState.visibleMonth)),
         actions: [
           IconButton(
             icon: const Icon(Icons.today_outlined),
             tooltip: 'Today',
             onPressed: () {
-              calendarState.selectDay(DateTime.now());
-              calendarState.setVisibleMonth(DateTime.now());
+              selectedDayState.selectDay(DateTime.now());
+              visibleMonthState.setVisibleMonth(DateTime.now());
             },
           ),
         ],

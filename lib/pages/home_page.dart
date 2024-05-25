@@ -3,11 +3,12 @@ import 'dart:collection';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kalendae/providers/calendar_events_provider.dart';
 import 'package:kalendae/providers/calendar_settings_provider.dart';
 import 'package:kalendae/providers/selected_calendar_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../providers/visible_calendar_month_provider.dart';
+import '../providers/calendar_widget_state_provider.dart';
 import 'home_sections/calendar_events_section.dart';
 
 class HomePage extends ConsumerWidget {
@@ -21,26 +22,44 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var calendarState = ref.watch(calendarWidgetStateProviderProvider);
+    var visibleMonthState = ref.watch(calendarWidgetVisibleMonthStateProvider);
+    var selectedDayState = ref.watch(calendarWidgetSelectedDayStateProvider);
+    final calendarEventsAsyncValue = ref.watch(calendarEventsProvider);
+
     var calendarSettings = ref.watch(calendarSettingsProvider);
     var calendars = ref.watch(selectedCalendarProvider);
+    // final calendarEventsAsyncValue = ref.watch(calendarEventsProvider(calendarState));
+
 
     DeviceCalendarPlugin deviceCalendar = DeviceCalendarPlugin.private();
+    var monthEvents = calendarEventsAsyncValue.valueOrNull ?? [];
     return Scaffold(
         body: Container(
       child: Column(
         children: [
-          TableCalendar(
+          TableCalendar<Event>(
+            eventLoader: (day) {
+              List<Event> calendarTableEvents = [];
+              for (var event in monthEvents) {
+                if (isSameDay(event.start!, day)) {
+                  calendarTableEvents.add(event);
+                }
+              }
+              return calendarTableEvents;
+            },
             headerVisible: false,
             startingDayOfWeek:
                 _weekdayToStartingDayOfWeek(calendarSettings.firstDayOfWeek),
             sixWeekMonthsEnforced: true,
-            onPageChanged: (focusedDay) => calendarState.setVisibleMonth(focusedDay),
+            onPageChanged: (focusedDay) {
+              visibleMonthState.setVisibleMonth(focusedDay);
+
+            },
             firstDay: DateTime.utc(1970),
             lastDay: DateTime.utc(2038, 1, 18),
-            focusedDay: calendarState.visibleMonth,
-            onDaySelected: (selectedDay, focusedDay) => calendarState.selectDay(selectedDay),
-            selectedDayPredicate: (day) => isSameDay(calendarState.selectedDay, day),
+            focusedDay: visibleMonthState.visibleMonth,
+            onDaySelected: (selectedDay, focusedDay) => selectedDayState.selectDay(selectedDay),
+            selectedDayPredicate: (day) => isSameDay(selectedDayState.selectedDay, day),
             weekNumbersVisible: calendarSettings.showCalendarWeeks,
             calendarStyle: CalendarStyle(
               todayTextStyle: TextStyle(
