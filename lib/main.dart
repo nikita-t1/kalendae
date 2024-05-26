@@ -4,13 +4,13 @@ import 'package:intl/intl.dart';
 import 'package:kalendae/pages/calendars_selection_page.dart';
 import 'package:kalendae/pages/home_page.dart';
 import 'package:kalendae/pages/settings_page.dart';
-import 'package:kalendae/providers/selected_calendar_provider.dart';
-import 'package:kalendae/providers/settings_provider.dart';
 import 'package:kalendae/providers/calendar_widget_state_provider.dart';
-
+import 'package:kalendae/providers/settings_provider.dart';
+import 'package:localstorage/localstorage.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initLocalStorage();
 
   runApp(
     const ProviderScope(
@@ -75,7 +75,8 @@ class DefaultLayout extends ConsumerWidget {
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(
-        title: Text(DateFormat('MMMM yyyy').format(visibleMonthState.visibleMonth)),
+        title: Text(
+            DateFormat('MMMM yyyy').format(visibleMonthState.visibleMonth)),
         actions: [
           IconButton(
             icon: const Icon(Icons.today_outlined),
